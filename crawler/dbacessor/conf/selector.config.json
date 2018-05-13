@@ -1,0 +1,15 @@
+{
+    "crawler_config":
+    {
+        "host"     : "127.0.0.1",
+        "port"     : 7011
+    },
+    "mysql_config":
+    {
+        "host"     : "106.14.135.47",
+        "port"     : 3306,
+        "database" : "wenda",
+        "username" : "mfl",
+        "password" : "mfl"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "server_config":
+    {
+        "port"     : 7012
+    },
+    "mysql_config":
+    {
+        "host"     : "106.14.135.47",
+        "port"     : 3306,
+        "database" : "wenda",
+        "username" : "mfl",
+        "password" : "mfl"
+    }
+}

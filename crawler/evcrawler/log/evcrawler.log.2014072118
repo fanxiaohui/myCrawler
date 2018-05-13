@@ -1,0 +1,78 @@
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:116] func[init] set QueryPort = 7011.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:117] func[init] set WorkerThreadNum = 2.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:120] func[init] set DnsCachePath = ./conf/dns_cache.json.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = ./conf/host_visit_interval.config.json.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:142] func[init] set ProxyEnabled = 1.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:143] func[init] set IP = 127.0.0.1.
+ROUTN 07-21 18:08:21 139721307707264 file[config.cc:144] func[init] set Port = 8888.
+ROUTN 07-21 18:08:21 139721307707264 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 07-21 18:08:21 139721307707264 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+ROUTN 07-21 18:08:21 139721307707264 file[host_links.cc:391] func[load_from_file] load url from [./data/url_save.json] all[0] err[0]
+FATAL 07-21 18:08:21 139721307707264 file[dns_cache.cc:95] func[load] MySuicideAssert Failed. [keynames.size() > 0] EMSG[Success]
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:116] func[init] set QueryPort = 7011.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:117] func[init] set WorkerThreadNum = 2.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:120] func[init] set DnsCachePath = ./conf/dns_cache.json.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = ./conf/host_visit_interval.config.json.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:142] func[init] set ProxyEnabled = 1.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:143] func[init] set IP = 127.0.0.1.
+ROUTN 07-21 18:11:00 139908003399552 file[config.cc:144] func[init] set Port = 8888.
+ROUTN 07-21 18:11:00 139908003399552 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 07-21 18:11:00 139908003399552 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+ROUTN 07-21 18:11:00 139908003399552 file[host_links.cc:391] func[load_from_file] load url from [./data/url_save.json] all[0] err[0]
+ROUTN 07-21 18:11:00 139908003399552 file[evcrawler.cc:528] func[main] host[www.xiachufang.com] pick_url_interval_ms[1000]
+ROUTN 07-21 18:11:01 139908003399552 file[evcrawler.cc:70] func[dns_query_cb] host[www.xiachufang.com] ip[118.145.8.14]
+ROUTN 07-21 18:14:54 139908003399552 file[evcrawler.cc:112] func[main_process_cb] socket_ctx[0x1ba1ca0] cb_count[1]
+ROUTN 07-21 18:14:54 139908003399552 file[evcrawler.cc:138] func[main_process_cb] log_id[1] read head done. detail_len zero length. status[1]
+ROUTN 07-21 18:14:54 139908003399552 file[evcrawler.cc:112] func[main_process_cb] socket_ctx[0x1ba1ca0] cb_count[2]
+ROUTN 07-21 18:14:54 139908003399552 file[evcrawler.cc:133] func[main_process_cb] log_id[1405937694] read selector head done, to_read_len: 80 has_read_len: 0
+ROUTN 07-21 18:14:54 139908003399552 file[evcrawler.cc:242] func[main_process_cb] process all[1] err[0]
+ROUTN 07-21 18:15:09 139907982030592 file[host_links.cc:227] func[link_finish_crawl] host[www.xiachufang.com] crawled [1] pages in last minute, max[60]
+ROUTN 07-21 18:15:09 139907965245184 file[dump2disk_thread.cc:112] func[dump2disk_thread] qlen[0] jlen[165] alen[165] json[{"Content-Encoding":"gzip","Status-Code":0,"host":"www.xiachufang.com","host_no":1,"shard_no":0,"timestamp":1405937709,"url":"http://www.xiachufang.com","url_no":1}]
+ROUTN 07-21 18:21:28 139908003399552 file[evcrawler.cc:323] func[main_event_cb] bufferevent shutdown. events: 0x11
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:116] func[init] set QueryPort = 7011.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:117] func[init] set WorkerThreadNum = 2.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:120] func[init] set DnsCachePath = ./conf/dns_cache.json.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = ./conf/host_visit_interval.config.json.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:142] func[init] set ProxyEnabled = 1.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:143] func[init] set IP = 127.0.0.1.
+ROUTN 07-21 18:23:01 139680658315136 file[config.cc:144] func[init] set Port = 8888.
+ROUTN 07-21 18:23:01 139680658315136 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 07-21 18:23:01 139680658315136 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+ROUTN 07-21 18:23:01 139680658315136 file[host_links.cc:391] func[load_from_file] load url from [./data/url_save.json] all[0] err[0]
+ROUTN 07-21 18:23:01 139680658315136 file[evcrawler.cc:528] func[main] host[www.xiachufang.com] pick_url_interval_ms[1000]
+FATAL 07-21 18:23:01 139680658315136 file[evcrawler.cc:546] func[main] MySuicideAssert Failed. [NULL != listener] EMSG[Address already in use]
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:116] func[init] set QueryPort = 7011.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:117] func[init] set WorkerThreadNum = 2.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:120] func[init] set DnsCachePath = ./conf/dns_cache.json.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = ./conf/host_visit_interval.config.json.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:142] func[init] set ProxyEnabled = 1.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:143] func[init] set IP = 127.0.0.1.
+ROUTN 07-21 18:24:06 140097020815232 file[config.cc:144] func[init] set Port = 8888.
+ROUTN 07-21 18:24:06 140097020815232 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 07-21 18:24:06 140097020815232 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+ROUTN 07-21 18:24:06 140097020815232 file[host_links.cc:391] func[load_from_file] load url from [./data/url_save.json] all[0] err[0]
+ROUTN 07-21 18:24:06 140097020815232 file[evcrawler.cc:528] func[main] host[www.xiachufang.com] pick_url_interval_ms[1000]
+ROUTN 07-21 18:24:06 140096982660864 file[filelinkblock.cpp:176] func[check_and_repaire] Find normal end block. woffset[204] filesize[204] block_id[1]
+ROUTN 07-21 18:24:08 140097020815232 file[evcrawler.cc:70] func[dns_query_cb] host[www.xiachufang.com] ip[118.145.8.14]
+ALARM 07-21 18:24:22 140097020815232 file[evcrawler.cc:56] func[dns_query_cb] host[www.xiachufang.com] dns_query fail: non-recoverable failure in name resolution
+ROUTN 07-21 18:25:40 140097020815232 file[evcrawler.cc:112] func[main_process_cb] socket_ctx[0x72aca0] cb_count[1]
+ROUTN 07-21 18:25:40 140097020815232 file[evcrawler.cc:138] func[main_process_cb] log_id[1] read head done. detail_len zero length. status[1]
+ROUTN 07-21 18:30:23 140097020815232 file[evcrawler.cc:323] func[main_event_cb] bufferevent shutdown. events: 0x11
+ROUTN 07-21 18:31:08 140097020815232 file[evcrawler.cc:405] func[sigexit_cb] sig[15] happened.
+ROUTN 07-21 18:31:08 140097020815232 file[evcrawler.cc:425] func[sigexit_cb] exit in sigexit_cb. left_crawling_number: 0

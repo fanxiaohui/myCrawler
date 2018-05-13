@@ -1,0 +1,42 @@
+{
+    "LogLevel": 1, 
+    "LogPath": "sender", 
+    "followers": [
+        {
+            "enable"     : 0, 
+            "name"       : "link_db_updater", 
+            "port"       : 7012, 
+            "conn_toms"  : 1000, 
+            "recv_toms"  : 10000, 
+            "send_toms"  : 1000, 
+            "host"       : "127.0.0.1",
+            "mode"       : "xhead",
+            "queue_path" : "../evcrawler/data/",
+            "queue_file" : "page_info",
+            "events": [
+                {
+                    "queue_type": 0, 
+                    "event_type": 0
+                } 
+            ]
+        },
+        {
+            "enable"     : 1, 
+            "name"       : "page_db_updater", 
+            "port"       : 7013, 
+            "conn_toms"  : 1000, 
+            "recv_toms"  : 10000, 
+            "send_toms"  : 1000, 
+            "host"       : "127.0.0.1",
+            "mode"       : "xhead",
+            "queue_path" : "../evcrawler/data/",
+            "queue_file" : "page_info",
+            "events": [
+                {
+                    "queue_type": 0, 
+                    "event_type": 0
+                } 
+            ]
+        }
+    ]
+}

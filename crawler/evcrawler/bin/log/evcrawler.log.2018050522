@@ -1,0 +1,28 @@
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:116] func[init] set QueryPort = 2006.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:117] func[init] set WorkerThreadNum = 10.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:120] func[init] set DnsCachePath = .
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = .
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:142] func[init] set ProxyEnabled = 0.
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:143] func[init] set IP = .
+ROUTN 05-05 22:47:22 140045021210432 file[config.cc:144] func[init] set Port = 0.
+ROUTN 05-05 22:47:22 140045021210432 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 05-05 22:47:22 140045021210432 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+FATAL 05-05 22:47:22 140045021210432 file[host_links.cc:39] func[init] MySuicideAssert Failed. [reader.parse(in, root)] EMSG[No such file or directory]
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:115] func[init] set LogLevel = 2.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:116] func[init] set QueryPort = 2006.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:117] func[init] set WorkerThreadNum = 10.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:118] func[init] set ReadBufferHighWaterMark = 1048576.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:119] func[init] set DnsUpdateInterval = 3600.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:120] func[init] set DnsCachePath = .
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:121] func[init] set HostVisitIntervalConfigPath = .
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:122] func[init] set UrlSavePath = ./data/url_save.json.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:142] func[init] set ProxyEnabled = 0.
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:143] func[init] set IP = .
+ROUTN 05-05 22:58:39 140161633957696 file[config.cc:144] func[init] set Port = 0.
+ROUTN 05-05 22:58:39 140161633957696 file[evcrawler.cc:477] func[main] -----------------------------------------
+ROUTN 05-05 22:58:39 140161633957696 file[evcrawler.cc:478] func[main] using config: ./conf/evcrawler.config.json
+FATAL 05-05 22:58:39 140161633957696 file[host_links.cc:39] func[init] MySuicideAssert Failed. [reader.parse(in, root)] EMSG[No such file or directory]

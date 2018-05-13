@@ -1,0 +1,27 @@
+{
+    "LOG":
+    {
+        // enum {PRINT = 0, DEBUG, ROUTN, ALARM, FATAL,}, default as 2
+        // name by "./log/flexse.log.YYYYMMHH"
+        // size default 2G
+        "LogLevel" : 1
+    },
+    "QUERY_SERVER":
+    {
+        "QueryPort"                   : 7011,      // default as 1983
+        "WorkerThreadNum"             : 4,         // default as 20
+        "ReadBufferHighWaterMark"     : 1048576,   // default as 1M
+        "DnsUpdateInterval"           : 3600,      // default as 1Hour
+        "DnsCachePath"                : "./conf/dns_cache.json",
+        "DumpDataDir"                 : "./data/",
+        "DumpDataname"                : "page",
+        "HostVisitIntervalConfigPath" : "./conf/host_visit_interval.config.json"
+    },
+    "PROXY":
+    {
+        "ProxyEnabled" : 0,             //0 disable ,1 enable
+        "IP"    :   "127.0.0.1",
+        "Port"  :   8888
+    }
+
+}

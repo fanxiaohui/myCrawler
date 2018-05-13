@@ -1,0 +1,12 @@
+{
+    "server_config":
+    {
+        "port"       : 7013
+    },
+    "mongo_config":
+    {
+        "host"       : "106.14.135.47",
+        "port"       : 27017,
+        "database"   : "wenda"
+    }
+}

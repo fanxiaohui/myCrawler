@@ -1,0 +1,5 @@
+ROUTN 07-21 18:26:55 140384583796608 file[sender.cpp:82] func[main] =====================================================================
+ROUTN 07-21 18:26:55 140384583796608 file[sender.cpp:159] func[main] xhead consumer[link_db_updater] qpath[../evcrawler/data/] qfile[page_info] host[127.0.0.1] port[7012] long_connect[0] send_toms[1000] recv_toms[10000] conn_toms[1000]
+ROUTN 07-21 18:26:55 140384583796608 file[sender.cpp:252] func[main] channel[link_db_updater] event[0 # 0]
+ROUTN 07-21 18:26:55 140384583796608 file[sender.cpp:102] func[main] channel[page_db_updater] skip.
+ROUTN 07-21 18:26:55 140384567002880 file[xhead_message.cpp:190] func[xhead_message] logid[1] file_no[0] block_id[1] channel[link_db_updater] qpath[../evcrawler/data/] qfile[page_info] host[127.0.0.1] port[7012] event[0 # 0] msglen[165] time_cost_ms[49]

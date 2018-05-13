@@ -1,0 +1,15 @@
+{
+    "host_crawling_control":
+    {
+        "www.xiachufang.com":
+        {
+           "max_crawling_number":10,
+            "crawling_number_by_minute" : 60
+        },
+	"www.haoyun56.com":
+        {
+           "max_crawling_number":10,
+            "crawling_number_by_minute" : 60
+        }
+    }
+}
