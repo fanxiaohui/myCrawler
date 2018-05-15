@@ -12,11 +12,11 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 baseline = ''
-testurl = 'http://106.14.135.47:2233/'
+# testurl = 'http://106.14.135.47:2233/'
+testurl = 'http://www.example.com/'
+
 
 def http_get(url):
-
-
     request = urllib2.Request(url)
     request.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
     request.add_header('Accept-Encoding', 'deflate')
@@ -32,7 +32,7 @@ def http_get(url):
         print '--------------------403--------------------'
         return url
     html = response.read()
-    return  html
+    return html
     # html = unicode(html, 'gb18030').encode('utf-8')
     # respHtml = zlib.decompress(html, 16 + zlib.MAX_WBITS)
     # return respHtml
@@ -43,27 +43,32 @@ def http_get(url):
     # return gdata
     # return urllib2.urlopen(url).read()
 
-def test_proxy(url, ip, port, timeout = 5):
+
+def test_proxy(url, ip, port, timeout=5):
     try:
-        proxy_handler = urllib2.ProxyHandler({'http':'http://%s:%s/' % (ip, port)})
+        proxy_handler = urllib2.ProxyHandler({'http': 'http://%s:%s/' % (ip, port)})
         opener = urllib2.build_opener(proxy_handler)
-        html = opener.open(url, timeout=timeout).read()
-        data = json.loads(html)
-        if data.has_key('status') and data.has_key('HTTP_X_FORWARDED_FOR') and data['status'] == 'ok' and data['HTTP_X_FORWARDED_FOR'].find(baseline) == -1:
+        opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+        ret = opener.open(url, timeout=timeout)
+        if ret.code == 200:
             return True
         else:
             print data
-    except Exception,e:
+        # html = opener.open(url, timeout=timeout).read()
+    except Exception, e:
         print e
     return False
 
 
 def main():
-    html = http_get(testurl)
-    print html
-    global baseline
+    # test_proxy(testurl, '106.14.135.47', '3389')
+    # exit()
+
+    # html = http_get(testurl)
+    # print html
+    # global baseline
     # baseline = json.loads(html)['HTTP_X_FORWARDED_FOR']
-    print 'public ip:', baseline
+    # print 'public ip:', baseline
     url = 'http://www.xici.net.co/nn'
     html = http_get(url)
     # print html
@@ -75,24 +80,28 @@ def main():
     # print artiBlock
     # print s.select('#ip_list')
 
-    ips = []
+    # ips = []
     output = []
     ofile = file(sys.argv[1], 'w')
     # for tr in s.select('table #ip_list tr')[1:]:
     for tr in artiBlock.findAll('tr')[1:]:
         # print tr
-        ip={}
+        ip = {}
         ip['ip'] = tr.findAll('td')[1].text
         ip['port'] = tr.findAll('td')[2].text
         ip['type'] = tr.findAll('td')[5].text
         print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
-        ips.append(ip)
+        # ips.append(ip)
+        # output.append(ip)
+        # print 'avaliable:', '%s:%s' % (ip['ip'], ip['port'])
+        # print >> ofile, '%s:%s' % (ip['ip'], ip['port'])
         if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
             output.append(ip)
             print 'avaliable:', '%s:%s'% (ip['ip'], ip['port'])
             print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
     print output
     ofile.close()
+
 
 if __name__ == '__main__':
     main()
