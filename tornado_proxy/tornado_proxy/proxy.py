@@ -34,9 +34,11 @@ import tornado.iostream
 import tornado.web
 import tornado.httpclient
 
-import redis, random
+import redis
+import random
 
 __all__ = ['ProxyHandler', 'run_proxy']
+
 
 def init_redis():
     '''
@@ -44,6 +46,7 @@ def init_redis():
     '''
     global redis_client
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
 
 redis_client = None
 init_redis()
@@ -56,6 +59,7 @@ headers = {
     CONNECT_TIMEOUT:'Connect-Timeout'
 }
 
+
 class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ['GET', 'POST', 'CONNECT']
 
@@ -63,7 +67,7 @@ class ProxyHandler(tornado.web.RequestHandler):
         self.redis_client = redis_client
     
     def choose_proxy(self, last=''):
-        proxylist = self.redis_client.zrangebyscore('proxy','-inf', '+inf', num=5, start=0)
+        proxylist = self.redis_client.zrangebyscore('proxy', '-inf', '+inf', num=5, start=0)
         proxy = None
         while not proxy or proxy == last:
             proxy = proxylist[random.randint(0, len(proxylist) - 1)]
@@ -173,7 +177,6 @@ class ProxyHandler(tornado.web.RequestHandler):
         upstream = tornado.iostream.IOStream(s)
         upstream.connect((host, int(port)), start_tunnel)
 
-    
 
 def run_proxy(port, start_ioloop=True):
     """
@@ -190,6 +193,7 @@ def run_proxy(port, start_ioloop=True):
     ioloop = tornado.ioloop.IOLoop.instance()
     if start_ioloop:
         ioloop.start()
+
 
 if __name__ == '__main__':
     port = 8888

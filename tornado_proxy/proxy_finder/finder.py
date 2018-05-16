@@ -12,8 +12,8 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 baseline = ''
-# testurl = 'http://106.14.135.47:2233/'
-testurl = 'http://www.example.com/'
+testurl = 'http://106.14.135.47:2233/'
+# testurl = 'http://www.example.com/'
 
 
 def http_get(url):
@@ -50,9 +50,11 @@ def test_proxy(url, ip, port, timeout=5):
         opener = urllib2.build_opener(proxy_handler)
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         ret = opener.open(url, timeout=timeout)
+        print ret.code
         if ret.code == 200:
             return True
         else:
+            ret.code
             print data
         # html = opener.open(url, timeout=timeout).read()
     except Exception, e:
@@ -61,7 +63,8 @@ def test_proxy(url, ip, port, timeout=5):
 
 
 def main():
-    # test_proxy(testurl, '106.14.135.47', '3389')
+    # for i in range(30):
+    #     test_proxy(testurl, '119.28.194.66', '8888')
     # exit()
 
     # html = http_get(testurl)
@@ -84,6 +87,7 @@ def main():
     output = []
     ofile = file(sys.argv[1], 'w')
     # for tr in s.select('table #ip_list tr')[1:]:
+    count = 0
     for tr in artiBlock.findAll('tr')[1:]:
         # print tr
         ip = {}
@@ -96,9 +100,14 @@ def main():
         # print 'avaliable:', '%s:%s' % (ip['ip'], ip['port'])
         # print >> ofile, '%s:%s' % (ip['ip'], ip['port'])
         if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
+            if count == 2:
+                continue
             output.append(ip)
             print 'avaliable:', '%s:%s'% (ip['ip'], ip['port'])
             print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
+            count = count + 1
+        else:
+            print 'not:%s:%s' %(ip['ip'], ip['port'])
     print output
     ofile.close()
 
