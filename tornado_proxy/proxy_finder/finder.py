@@ -23,7 +23,7 @@ def http_get(url):
     request.add_header('Accept-Language', 'en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4')
     request.add_header('Cache-Control', 'max-age=0')
     request.add_header('Connection', 'keep-alive')
-    request.add_header('User-Agent', 'Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0)')
+    request.add_header('User-Agent', 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.0)')
 
     try:
         response = urllib2.urlopen(request)
@@ -51,11 +51,14 @@ def test_proxy(url, ip, port, timeout=5):
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         ret = opener.open(url, timeout=timeout)
         print ret.code
-        if ret.code == 200:
+        resp = opener.open(url, timeout=timeout).read()
+        if ret.code == 200 and resp == 'Hello, world':
+            print resp
+            print ret.url
             return True
         else:
-            ret.code
-            print data
+            print ret.code
+            return False
         # html = opener.open(url, timeout=timeout).read()
     except Exception, e:
         print e
@@ -63,52 +66,31 @@ def test_proxy(url, ip, port, timeout=5):
 
 
 def main():
-    # for i in range(30):
-    #     test_proxy(testurl, '119.28.194.66', '8888')
-    # exit()
-
-    # html = http_get(testurl)
-    # print html
-    # global baseline
-    # baseline = json.loads(html)['HTTP_X_FORWARDED_FOR']
-    # print 'public ip:', baseline
-    url = 'http://www.xici.net.co/nn'
-    html = http_get(url)
-    # print html
-    s = BeautifulSoup.BeautifulSoup(html)
-    # print s
-    # print type(s)
-    artiBlock = s.find('table', {'id': 'ip_list'})
-    # print artiBlock.findAll('tr')
-    # print artiBlock
-    # print s.select('#ip_list')
-
-    # ips = []
-    output = []
+    test_proxy(testurl, '119.28.194.66', '8888')
+    exit()
+   
+    url = 'http://www.xici.net.co/nn/%s'
     ofile = file(sys.argv[1], 'w')
-    # for tr in s.select('table #ip_list tr')[1:]:
-    count = 0
-    for tr in artiBlock.findAll('tr')[1:]:
-        # print tr
-        ip = {}
-        ip['ip'] = tr.findAll('td')[1].text
-        ip['port'] = tr.findAll('td')[2].text
-        ip['type'] = tr.findAll('td')[5].text
-        print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
-        # ips.append(ip)
-        # output.append(ip)
-        # print 'avaliable:', '%s:%s' % (ip['ip'], ip['port'])
-        # print >> ofile, '%s:%s' % (ip['ip'], ip['port'])
-        if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
-            if count == 2:
-                continue
-            output.append(ip)
-            print 'avaliable:', '%s:%s'% (ip['ip'], ip['port'])
-            print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
-            count = count + 1
-        else:
-            print 'not:%s:%s' %(ip['ip'], ip['port'])
-    print output
+    for count in range(1, 2):
+        html = http_get(url % count)
+        # print html
+        s = BeautifulSoup.BeautifulSoup(html)
+        # print s
+        # print type(s)
+        artiBlock = s.find('table', {'id': 'ip_list'})
+
+        # for tr in s.select('table #ip_list tr')[1:]:
+        for tr in artiBlock.findAll('tr')[1:]:
+            # print tr
+            ip = {}
+            ip['ip'] = tr.findAll('td')[1].text
+            ip['port'] = tr.findAll('td')[2].text
+            ip['type'] = tr.findAll('td')[5].text
+            print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
+            if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
+                print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
+            else:
+                print 'not:%s:%s' %(ip['ip'], ip['port'])
     ofile.close()
 
 

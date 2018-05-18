@@ -34,11 +34,9 @@ import tornado.iostream
 import tornado.web
 import tornado.httpclient
 
-import redis
-import random
+import redis, random, time, md5, os
 
 __all__ = ['ProxyHandler', 'run_proxy']
-
 
 def init_redis():
     '''
@@ -47,38 +45,59 @@ def init_redis():
     global redis_client
     redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
-
 redis_client = None
 init_redis()
 SKIP_PROXY = 0
 REQUEST_TIMEOUT = 1
 CONNECT_TIMEOUT = 2
+MAX_CD_TRYCOUNT = 6
+COOLDOWN_TIME = 3 # cooldown time 3s
 headers = {
     SKIP_PROXY:'Skip-Proxy',
     REQUEST_TIMEOUT:'Request-Timeout',
     CONNECT_TIMEOUT:'Connect-Timeout'
 }
 
+CACHE_PATH = '/tmp/proxy_cache'
 
 class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ['GET', 'POST', 'CONNECT']
 
     def initialize(self, redis):
         self.redis_client = redis_client
-    
-    def choose_proxy(self, last=''):
-        proxylist = self.redis_client.zrangebyscore('proxy', '-inf', '+inf', num=5, start=0)
-        proxy = None
-        while not proxy or proxy == last:
-            proxy = proxylist[random.randint(0, len(proxylist) - 1)]
 
+    def check_cooldown(self, proxy, host, cooldown = 3):
+        last_visit = self.redis_client.exists( 'proxy::cooldown::%s_%s' % (proxy, host) )
+        return not last_visit
+        '''if not last_visit:
+            print 'no visit'
+            return True
+        print 'last_visit:%s' % last_visit 
+        return int(last_visit) + cooldown < int(time.time())'''
+
+    def choose_proxy(self, host='', last=''):
+        proxylist = self.redis_client.zrangebyscore('proxy','-inf', '+inf', num=5, start=0)
+        proxy = None
+        cd_trycount = 1
+        while not proxy or proxy == last:
+            tmpproxy = proxylist[random.randint(0, len(proxylist) - 1)]
+            #check CD
+            '''print 'check cd'''
+            if host != '' and cd_trycount <= MAX_CD_TRYCOUNT and not self.check_cooldown(tmpproxy, host, 3):
+                cd_trycount += 1
+                continue
+            proxy = tmpproxy        
+            
         self.redis_client.incr(proxy)
+        if host != '':
+            cd = int(time.time())
+            #print 'cd:%i' %  cd
+            self.redis_client.setex( 'proxy::cooldown::%s_%s' % (proxy, host), 3, cd)
         self.proxy = proxy
         return proxy
          
     @tornado.web.asynchronous
     def get(self):
-
         def handle_response(response):
             print response.code, self.proxy, response.effective_url
             if response.code == 599:
@@ -102,6 +121,11 @@ class ProxyHandler(tornado.web.RequestHandler):
                         self.set_header(header, v)
                 self.set_header('SNDA-Proxy', self.proxy)
                 if response.body:
+                    m = md5.new()
+                    m.update(response.body)
+                    cachefile = file('%s/%s' % (CACHE_PATH, m.hexdigest()), 'w')
+                    cachefile.write(response.body)
+                    cachefile.close()
                     self.write(response.body)
                 self.finish()
 
@@ -116,15 +140,14 @@ class ProxyHandler(tornado.web.RequestHandler):
         if headers[REQUEST_TIMEOUT] in self.request.headers:
             request_timeout = int(self.request.headers[headers[REQUEST_TIMEOUT]])
 
-        tmpproxy = self.choose_proxy(lastproxy).split(':')
-
+        tmpproxy = self.choose_proxy(self.request.host, lastproxy).split(':')
         tornado.httpclient.AsyncHTTPClient.configure('tornado.curl_httpclient.CurlAsyncHTTPClient')
         req = tornado.httpclient.HTTPRequest(url=self.request.uri,
             method=self.request.method, body=self.request.body,
             headers=self.request.headers, follow_redirects=False,
             connect_timeout=connect_timeout, request_timeout=request_timeout,
-            allow_nonstandard_methods=True, 
-            proxy_host=tmpproxy[0], proxy_port=int(tmpproxy[1]))
+            allow_nonstandard_methods=True)
+            #proxy_host=tmpproxy[0], proxy_port=int(tmpproxy[1]))
 
         client = tornado.httpclient.AsyncHTTPClient()
         try:
@@ -137,7 +160,7 @@ class ProxyHandler(tornado.web.RequestHandler):
                 self.write('Internal server error2:\n' + str(e))
                 self.finish()
         except Exception,e:
-            print e
+            print 'Common Exception', e
 
     @tornado.web.asynchronous
     def post(self):
@@ -177,6 +200,7 @@ class ProxyHandler(tornado.web.RequestHandler):
         upstream = tornado.iostream.IOStream(s)
         upstream.connect((host, int(port)), start_tunnel)
 
+    
 
 def run_proxy(port, start_ioloop=True):
     """
@@ -184,21 +208,26 @@ def run_proxy(port, start_ioloop=True):
     the tornado IOLoop will be started immediately.
     """
 
+    #init tornado
     app = tornado.web.Application([
         (r'.*', ProxyHandler, dict(redis=redis_client)),
     ])
     server = tornado.httpserver.HTTPServer(app, xheaders=True)
-    sockets = tornado.netutil.bind_sockets(port, '127.0.0.1')
-    server.add_sockets(sockets)
+    #sockets = tornado.netutil.bind_sockets(port, '127.0.0.1')
+    #server.add_sockets(sockets)
+    server.bind(port)
+    server.start(4)
+
     ioloop = tornado.ioloop.IOLoop.instance()
     if start_ioloop:
         ioloop.start()
-
-
+    
 if __name__ == '__main__':
     port = 8888
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
-
+    
+    if not os.path.exists(CACHE_PATH):
+        os.mkdir(CACHE_PATH) 
     print ("Starting HTTP proxy on port %d" % port)
     run_proxy(port)
