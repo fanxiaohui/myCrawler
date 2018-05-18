@@ -7,6 +7,7 @@ import BeautifulSoup
 import urllib, urllib2
 import zipfile,gzip,io,StringIO,zlib
 import json
+import redis
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -14,6 +15,7 @@ sys.setdefaultencoding('utf-8')
 baseline = ''
 testurl = 'http://106.14.135.47:2233/'
 # testurl = 'http://www.example.com/'
+db = redis.StrictRedis(host='210.22.106.178', port=2003)
 
 
 def http_get(url):
@@ -50,27 +52,30 @@ def test_proxy(url, ip, port, timeout=5):
         opener = urllib2.build_opener(proxy_handler)
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         ret = opener.open(url, timeout=timeout)
-        print ret.code
+        # print ret.code
         resp = opener.open(url, timeout=timeout).read()
         if ret.code == 200 and resp == 'Hello, world':
             print resp
-            print ret.url
+            # print ret.url
             return True
-        else:
-            print ret.code
-            return False
+        # else:
+        #     print ret.code
+        #     return False
         # html = opener.open(url, timeout=timeout).read()
     except Exception, e:
-        print e
+        # print e
+        pass
     return False
 
 
 def main():
-    test_proxy(testurl, '119.28.194.66', '8888')
-    exit()
-   
+    # db.zadd('proxy', 4, '%s:%s' % ('111.111.111.111', '111'))
+    # exit()
+    # test_proxy(testurl, '119.28.194.66', '8888')
+    # exit()
+
     url = 'http://www.xici.net.co/nn/%s'
-    ofile = file(sys.argv[1], 'w')
+    # ofile = file(sys.argv[1], 'w')
     for count in range(1, 2):
         html = http_get(url % count)
         # print html
@@ -86,12 +91,13 @@ def main():
             ip['ip'] = tr.findAll('td')[1].text
             ip['port'] = tr.findAll('td')[2].text
             ip['type'] = tr.findAll('td')[5].text
-            print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
+            # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
             if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
-                print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
-            else:
-                print 'not:%s:%s' %(ip['ip'], ip['port'])
-    ofile.close()
+                # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
+                db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
+            # else:
+            #     print 'not:%s:%s' %(ip['ip'], ip['port'])
+    # ofile.close()
 
 
 if __name__ == '__main__':

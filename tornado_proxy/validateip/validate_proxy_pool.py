@@ -29,8 +29,8 @@ def validate(proxy, testurl):
     return test_proxy(testurl, proxy.split(':')[0], proxy.split(':')[1], 5)
     
 
-db = redis.StrictRedis(host='127.0.0.1', port=6379)
-for proxy in db.zrange('proxy',0, -1):
+db = redis.StrictRedis(host='210.22.106.178', port=2003)
+for proxy in db.zrange('proxy', 0, -1):
     if not validate(proxy, testurl):
         db.zrem('proxy', proxy)
         print 'remove proxy:%s' % proxy
