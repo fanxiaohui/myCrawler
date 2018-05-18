@@ -1,6 +1,7 @@
 #coding:utf8
 import redis,json
 import urllib, urllib2
+import time
 
 testurl = 'http://106.14.135.47:2233/'
  
@@ -27,14 +28,16 @@ def test_proxy(url, ip, port, timeout = 5):
 
 def validate(proxy, testurl):
     return test_proxy(testurl, proxy.split(':')[0], proxy.split(':')[1], 5)
-    
 
-db = redis.StrictRedis(host='210.22.106.178', port=2003)
-for proxy in db.zrange('proxy', 0, -1):
-    if not validate(proxy, testurl):
-        db.zrem('proxy', proxy)
-        print 'remove proxy:%s' % proxy
-print 'end'
+
+while True:
+    db = redis.StrictRedis(host='210.22.106.178', port=2003)
+    for proxy in db.zrange('proxy', 0, -1):
+        if not validate(proxy, testurl):
+            db.zrem('proxy', proxy)
+            print 'remove proxy:%s' % proxy
+    print 'end'
+    time.sleep(3600)
 
 
 

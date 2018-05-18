@@ -8,6 +8,7 @@ import urllib, urllib2
 import zipfile,gzip,io,StringIO,zlib
 import json
 import redis
+import time
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -68,15 +69,17 @@ def test_proxy(url, ip, port, timeout=5):
     return False
 
 
-def main():
+def main(cDate, days):
     # db.zadd('proxy', 4, '%s:%s' % ('111.111.111.111', '111'))
     # exit()
     # test_proxy(testurl, '119.28.194.66', '8888')
     # exit()
+    # start = time.time()
 
     url = 'http://www.xici.net.co/nn/%s'
     # ofile = file(sys.argv[1], 'w')
-    for count in range(1, 2):
+    for count in range(1, 720):
+        print "%s, days:%s, page:%s" % (cDate, days, count)
         html = http_get(url % count)
         # print html
         s = BeautifulSoup.BeautifulSoup(html)
@@ -98,7 +101,17 @@ def main():
             # else:
             #     print 'not:%s:%s' %(ip['ip'], ip['port'])
     # ofile.close()
+    # end = time.time()
+    # dd = end - start
 
 
 if __name__ == '__main__':
-    main()
+    # sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
+    num = 1
+    while True:
+        sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
+        print '---------%s,days:%s' % (sysTime, num)
+        main(sysTime, num)
+        time.sleep(120)
+        num = num + 1
+

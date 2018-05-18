@@ -1,0 +1,1 @@
+nohup python -u finder.py > myout.file 2>&1 &
