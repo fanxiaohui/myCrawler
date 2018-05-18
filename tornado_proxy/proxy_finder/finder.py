@@ -30,7 +30,7 @@ def http_get(url):
 
     try:
         response = urllib2.urlopen(request)
-        print response.getcode()
+        # print response.getcode()
     except:
         print '--------------------403--------------------'
         return url
