@@ -69,40 +69,48 @@ def test_proxy(url, ip, port, timeout=5):
     return False
 
 
+def parseToRedis(html):
+    s = BeautifulSoup.BeautifulSoup(html)
+    artiBlock = s.find('table', {'id': 'ip_list'})
+
+    # for tr in s.select('table #ip_list tr')[1:]:
+    for tr in artiBlock.findAll('tr')[1:]:
+        # print tr
+        ip = {}
+        ip['ip'] = tr.findAll('td')[1].text
+        ip['port'] = tr.findAll('td')[2].text
+        ip['type'] = tr.findAll('td')[5].text
+        # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
+        if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
+            # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
+            db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
+
+
 def main(cDate, days):
-    # db.zadd('proxy', 4, '%s:%s' % ('111.111.111.111', '111'))
+    # rr = db.zadd('proxy', 4, '%s:%s' % ('106.114.135.47', '3122'))
+    # print rr
     # exit()
     # test_proxy(testurl, '119.28.194.66', '8888')
     # exit()
     # start = time.time()
-
-    url = 'http://www.xici.net.co/nn/%s'
-    # ofile = file(sys.argv[1], 'w')
+    url1 = 'http://www.xici.net.co/nn/%s'
+    url2 = 'http://www.xici.net.co/nt/%s'
+    url3 = 'http://www.xici.net.co/wt/%s'
+    url4 = 'http://www.xici.net.co/wn/%s'
+    url = []
+    url.append(url1)
+    url.append(url2)
+    url.append(url3)
+    url.append(url4)
     for count in range(1, 720):
-        print "%s, days:%s, page:%s" % (cDate, days, count)
-        html = http_get(url % count)
-        # print html
-        s = BeautifulSoup.BeautifulSoup(html)
-        # print s
-        # print type(s)
-        artiBlock = s.find('table', {'id': 'ip_list'})
+        for item in url:
+            addr = item%count
+            print "%s, days:%s, url:%s" % (cDate, days, addr)
+            html = http_get(addr)
+            parseToRedis(html)
 
-        # for tr in s.select('table #ip_list tr')[1:]:
-        for tr in artiBlock.findAll('tr')[1:]:
-            # print tr
-            ip = {}
-            ip['ip'] = tr.findAll('td')[1].text
-            ip['port'] = tr.findAll('td')[2].text
-            ip['type'] = tr.findAll('td')[5].text
-            # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
-            if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
-                # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
-                db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
-            # else:
-            #     print 'not:%s:%s' %(ip['ip'], ip['port'])
+        #         # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
     # ofile.close()
-    # end = time.time()
-    # dd = end - start
 
 
 if __name__ == '__main__':
