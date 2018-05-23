@@ -86,18 +86,40 @@ def parseToRedis(html):
             db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
 
 
-def main(cDate, days):
+def parseKuaiToRedis(html):
+    s = BeautifulSoup.BeautifulSoup(html)
+    # print html
+    artiBlock = s.find('table', {'class': 'table table-bordered table-striped'})
+
+    # for tr in s.select('table #ip_list tr')[1:]:
+    for tr in artiBlock.findAll('tr')[1:]:
+        # print tr
+        ip = {}
+        ip['ip'] = tr.findAll('td')[0].text
+        ip['port'] = tr.findAll('td')[1].text
+        ip['type'] = tr.findAll('td')[3].text
+        # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
+        if test_proxy(testurl, ip['ip'], ip['port']):
+            # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
+            db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
+
+
+def main(days):
     # rr = db.zadd('proxy', 4, '%s:%s' % ('106.114.135.47', '3122'))
     # print rr
     # exit()
     # test_proxy(testurl, '119.28.194.66', '8888')
     # exit()
     # start = time.time()
+    cDate = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
     url1 = 'http://www.xici.net.co/nn/%s'
     url2 = 'http://www.xici.net.co/nt/%s'
     url3 = 'http://www.xici.net.co/wt/%s'
     url4 = 'http://www.xici.net.co/wn/%s'
+
+    # kuaiUrl = 'https://www.kuaidaili.com/free/inha/%s'
     url = []
+    # url.append(kuaiUrl)
     url.append(url1)
     url.append(url2)
     url.append(url3)
@@ -108,6 +130,7 @@ def main(cDate, days):
             print "%s, days:%s, url:%s" % (cDate, days, addr)
             html = http_get(addr)
             parseToRedis(html)
+            # parseKuaiToRedis(html)
 
         #         # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
     # ofile.close()
@@ -117,9 +140,9 @@ if __name__ == '__main__':
     # sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
     num = 1
     while True:
-        sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
-        print '---------%s,days:%s' % (sysTime, num)
-        main(sysTime, num)
+        #sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
+        #print '---------%s,days:%s' % (sysTime, num)
+        main(num)
         time.sleep(120)
         num = num + 1
 
