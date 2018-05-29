@@ -14,27 +14,57 @@ import tornado.ioloop
 import tornado.iostream
 import tornado.web
 import tornado.httpclient
+import requests
+
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 baseline = ''
-testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1\r\n'
+testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59'
 # testurl = 'http://www.example.com/'
 db = redis.StrictRedis(host='210.22.106.178', port=2003)
+miaotuURl = '/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898927&longitude=121.905984&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1'
+'''
+GET /v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898927&longitude=121.905984&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1
+Host: api.miaotu.net
+Connection: keep-alive
+Accept: */*
+User-Agent: miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)
+Accept-Language: zh-Hans-CN;q=1
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+'''
+headers = {
+            'user-agent': 'miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)',
+            'Host': 'api.miaotu.net',
+            'Accept': '*/*',
+            'Accept-Language': 'zh-Hans-CN;q=1',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+           }
 
+def requestClient(url):
+    print 'start request---'
+    r = requests.get(testurl, headers=headers)
+    print r.text
 
 def http_get(url):
-    url = urllib2.quote(url, ': /= & ?')
+    # url = urllib2.quote(url, ': /= & ?')
     request = urllib2.Request(url)
     # request.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+    request.add_header('Host', 'api.miaotu.net')
+    request.add_header('Connection', 'keep-alive')
     request.add_header('Accept', '*/*')
+    request.add_header('User-Agent', 'miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)')
     request.add_header('Accept-Encoding', 'gzip, deflate')
     request.add_header('Accept-Language', 'zh-Hans-CN;q=1')
-    # request.add_header('host', 'api.miaotu.net')
-    # request.add_header('Cache-Control', 'max-age=0')
+    request.add_header('Host', 'api.miaotu.net')
     request.add_header('Connection', 'keep-alive')
-    request.add_header('User-Agent', 'miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)')
+
+    # request.add_header('Cache-Control', 'max-age=0')
+
+    print 'start --------'
 
     try:
         httpHandler = urllib2.HTTPHandler(debuglevel=1)
@@ -43,7 +73,9 @@ def http_get(url):
 
         urllib2.install_opener(opener)
         response = urllib2.urlopen(request)
+        print response
         html = response.read()
+        print html
         # print response
         # print html
         # print response.getcode()
@@ -205,8 +237,9 @@ def main():
     ip = '192.168.1.11'
     port = 8888
     # test_proxy(testurl, ip, port, timeout=5)
-    tornadoReq()
+    # tornadoReq()
     # html = http_get(testurl)
+    requestClient(testurl)
     # rr = db.zadd('proxy', 4, '%s:%s' % ('106.114.135.47', '3122'))
     # print rr
     # exit()
