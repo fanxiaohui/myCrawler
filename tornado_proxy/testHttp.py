@@ -15,13 +15,18 @@ import tornado.iostream
 import tornado.web
 import tornado.httpclient
 import requests
+import pymongo
+import hashlib
 
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 baseline = ''
-testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59'
+testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page='
+# +%s
+end = '%s&token=5e81b50f-ee12-11e6-b983-00163e002e59'
+# testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59'
 # testurl = 'http://www.example.com/'
 db = redis.StrictRedis(host='210.22.106.178', port=2003)
 miaotuURl = '/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898927&longitude=121.905984&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1'
@@ -44,10 +49,21 @@ headers = {
             'Connection': 'keep-alive'
            }
 
-def requestClient(url):
+def requestClient(url, monconn):
     print 'start request---'
-    r = requests.get(testurl, headers=headers)
-    print r.text
+    proxies = {"http": "http://127.0.0.1:8888"}
+    # requests.get("http://example.org", proxies=proxies)
+    r = requests.get(testurl, headers=headers, proxies=proxies)
+    data = r.text
+    # oData = r.json
+    # print type(data)
+    # print type(oData)
+    jData = json.loads(data)
+    for item in jData['Items']:
+        monconn.insert(item)
+    # print jData['Items'][0]['Uid']
+    # print jData['Items'][0]['Created']
+    # monconn.insert(jData)
 
 def http_get(url):
     # url = urllib2.quote(url, ': /= & ?')
@@ -93,144 +109,74 @@ def http_get(url):
     # print gdata
     # return gdata
     # return urllib2.urlopen(url).read()
+'''
+"mongo_config":
+    {
+        "host"       : "106.14.135.47",
+        "port"       : 27017,
+        "database"   : "wenda"
+    }
+'''
 
+class pagedbLogic(object):
 
-def test_proxy(url, ip, port, timeout=5):
-    try:
-        proxy_handler = urllib2.ProxyHandler({'http': 'http://%s:%s/' % (ip, port)})
-        opener = urllib2.build_opener(proxy_handler)
-        opener.addheaders = [('User-Agent', 'miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)'),
-                             ('Connection', 'keep - alive'),
-                             ('Accept-Language', 'zh-Hans-CN;q=1'),
-                             ('Accept-Encoding', 'gzip, deflate'),
-                             ('Accept', '*/*')]
+    def __init__(self, mongodb_config):
+        self.connection = pymongo.MongoClient('106.14.135.47', 27017)
+        self.database = self.connection['wenda']
+        # self.collection = None
+        self.collection = self.database["shtest"]
 
-        print 'test porxy==='
-        ret = opener.open(url, timeout=timeout)
-        print ret.code
-        resp = opener.open(url, timeout=timeout).read()
-        # if ret.code == 200 and resp == 'Hello, world':
-        print resp
-            # print ret.url
-            # return True
-        # else:
-        #     print ret.code
-        #     return False
-        # html = opener.open(url, timeout=timeout).read()
-    except Exception, e:
-        print e
-        pass
-    # return False
-
-
-def parseToRedis(html):
-    s = BeautifulSoup.BeautifulSoup(html)
-    artiBlock = s.find('table', {'id': 'ip_list'})
-
-    # for tr in s.select('table #ip_list tr')[1:]:
-    for tr in artiBlock.findAll('tr')[1:]:
-        # print tr
-        ip = {}
-        ip['ip'] = tr.findAll('td')[1].text
-        ip['port'] = tr.findAll('td')[2].text
-        ip['type'] = tr.findAll('td')[5].text
-        # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
-        if ip['type'].lower() == 'http' and test_proxy(testurl, ip['ip'], ip['port']):
-            # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
-            db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
-
-
-def parseKuaiToRedis(html):
-    s = BeautifulSoup.BeautifulSoup(html)
-    # print html
-    artiBlock = s.find('table', {'class': 'table table-bordered table-striped'})
-
-    # for tr in s.select('table #ip_list tr')[1:]:
-    for tr in artiBlock.findAll('tr')[1:]:
-        # print tr
-        ip = {}
-        ip['ip'] = tr.findAll('td')[0].text
-        ip['port'] = tr.findAll('td')[1].text
-        ip['type'] = tr.findAll('td')[3].text
-        # print '%s:%s %s' %(ip['ip'], ip['port'], ip['type'])
-        if test_proxy(testurl, ip['ip'], ip['port']):
-            # print >>ofile, '%s:%s' % (ip['ip'], ip['port'])
-            db.zadd('proxy', 0, '%s:%s' % (ip['ip'], ip['port']))
-
-
-def tornadoReq():
-    def handle_response(response):
-        # print response.code, self.proxy, response.effective_url
-        print '======================='
-        print response.code, response.effective_url
-        if response.code == 599:
-            # self.set_status(504)
-            # #mark proxy timeout
-            # # self.redis_client.zincrby('proxy', self.proxy, -1)
-            # self.finish()
-            return
-
-        if response.error and not isinstance(response.error,
-                tornado.httpclient.HTTPError):
-            print 'ser error'
+    def update(self, doc_item):
+        _id = self.get_primary_key(doc_item)
+        if self.collection.find_one({'_id': _id}):
+            # 存在则更新
+            self.collection.update({'_id': _id}, {'$set':doc_item}, upsert=True)
         else:
-            self.set_status(response.code)
-            for header in ('Date', 'Cache-Control', 'Server',
-                    'Content-Type', 'Location'):
-                v = response.headers.get(header)
-                if v:
-                    self.set_header(header, v)
-            # self.set_header('SNDA-Proxy', self.proxy)
-            if response.body:
-                print response.body
-            #     m = md5.new()
-            #     m.update(response.body)
-            #     cachefile = file('%s/%s' % (CACHE_PATH, m.hexdigest()), 'w')
-            #     cachefile.write(response.body)
-            #     cachefile.close()
-            #     self.write(response.body)
-            # self.finish()
+            return False, 'primary_key [' + _id + '] NOT exists.'
+        return True, 'OK'
 
-        lastproxy = ''
-        connect_timeout = 3
-        request_timeout = 3
-        # if headers[SKIP_PROXY] in self.request.headers:
-        #     lastproxy = self.request.headers[headers[SKIP_PROXY]]
-        #     print 'skip:', lastproxy
-        # if headers[CONNECT_TIMEOUT] in self.request.headers:
-        #     connect_timeout = int(self.request.headers[headers[CONNECT_TIMEOUT]])
-        # if headers[REQUEST_TIMEOUT] in self.request.headers:
-        #     request_timeout = int(self.request.headers[headers[REQUEST_TIMEOUT]])
+    def delete(self, doc_item):
+        # 找出主键
+        _id = self.get_primary_key(doc_item,)
+        # 判断主键是否存在
+        if self.collection.find_one({'_id': _id}):
+            # 存在则删除
+            self.collection.remove({'_id': _id})
+        else:
+            return False, 'primary_key [' + _id + '] NOT exists.'
+        return True, 'OK'
 
-        # tmpproxy = self.choose_proxy(self.request.host, lastproxy).split(':')
-        tmpproxy = ['pp', '//106.14.135.47', '3389']
-        # body = self.request.body
-        body = None
-        # if self.request.method.lower() == "post":
-        #     body = self.request.body
-        # print body
-        ua = "miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)"
-        tornado.httpclient.AsyncHTTPClient.configure('tornado.curl_httpclient.CurlAsyncHTTPClient')
-        req = tornado.httpclient.HTTPRequest(url=testurl, user_agent=ua,
-                                            method='GET',
-                                            body=body,
-                                            # headers=self.request.headers,
-                                            follow_redirects=False,
-                                            connect_timeout=3, request_timeout=3,
-                                            allow_nonstandard_methods=True,
-                                            proxy_host=tmpproxy[1][2:], proxy_port=int(tmpproxy[2]))
+    def insert(self, doc_item, upsert = False):
+        # 找出主键
+        # print jData['Items'][0]['Uid']
+        # print jData['Items'][0]['Created']
+        # _id = self.get_primary_key(doc_item)
+        _id = doc_item['Uid'] + '_' + doc_item['Created']
+        print '_id:%s' %_id
+        # 判断主键是否存在
+        if self.collection.find_one({'_id': _id}):
+            # 存在则更新
+            # if upsert:
+            #     self.collection.update({'_id': _id}, {'$set':doc_item}, upsert=True)
+            #     return True, 'primary_key [' + _id + '] upsert OK.'
+            # else:
+            #     return False, 'primary_key [' + _id + '] already exists.'
+            pass
+        else:
+            doc_item['_id'] = _id
+            self.collection.insert(doc_item)
+        return True, 'OK'
 
-        client = tornado.httpclient.AsyncHTTPClient()
-        try:
-            client.fetch(req, handle_response)
-        except tornado.httpclient.HTTPError as e:
-            if hasattr(e, 'response') and e.response:
-                handle_response(e.response)
-            else:
-                print 'Internal server error2:%s\n' + str(e)
-                # self.finish()
-        except Exception,e:
-            print 'Common Exception', e
+    def select(self, doc_id):
+        return self.collection.find_one({'_id': str(doc_id)})
+
+    def get_primary_key(self, doc_item,):
+        assert doc_item.has_key('url')
+        #print '[%s]' % doc_item['url']
+        _id = hashlib.md5(doc_item['url']).hexdigest()
+        table_name = doc_item['host'].replace('.', '_').replace('-', '_')
+        self.collection = self.database[table_name]
+        return str(_id)
 
 
 def main():
@@ -239,7 +185,16 @@ def main():
     # test_proxy(testurl, ip, port, timeout=5)
     # tornadoReq()
     # html = http_get(testurl)
-    requestClient(testurl)
+    mon = pagedbLogic()
+    for count in range(1, 475):
+        cDate = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
+        addr = end%count
+        url = testurl + addr
+        print "%s, url:%s" % (cDate, url)
+        requestClient(url, mon)
+        time.sleep(5)
+
+    # requestClient(testurl)
     # rr = db.zadd('proxy', 4, '%s:%s' % ('106.114.135.47', '3122'))
     # print rr
     # exit()

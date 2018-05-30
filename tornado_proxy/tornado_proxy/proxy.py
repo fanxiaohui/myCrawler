@@ -151,13 +151,15 @@ class ProxyHandler(tornado.web.RequestHandler):
             request_timeout = int(self.request.headers[headers[REQUEST_TIMEOUT]])
 
         # tmpproxy = self.choose_proxy(self.request.host, lastproxy).split(':')
-        tmpproxy = ['pp', '//106.14.135.47', '3389']
+        tmpproxy = ['pp', '//221.7.255.168', '8080']
+        # tmpproxy = ['pp', '//106.14.135.47', '3389']
         body = self.request.body
         body = None
         if self.request.method.lower() == "post":
             body = self.request.body
         # print body
-        ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+        # ua = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+        ua = 'miaotu/1.0.2 (iPhone; iOS 9.3.5; Scale/2.00)'
         tornado.httpclient.AsyncHTTPClient.configure('tornado.curl_httpclient.CurlAsyncHTTPClient')
         req = tornado.httpclient.HTTPRequest(url=self.request.uri, user_agent=ua,
                                             method=self.request.method,
