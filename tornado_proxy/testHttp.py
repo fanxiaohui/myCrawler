@@ -209,9 +209,9 @@ if __name__ == '__main__':
     # while True:
         #sysTime = time.strftime("%Y/%m/%d %H:%M", time.localtime(time.time()))
         #print '---------%s,days:%s' % (sysTime, num)
-    main()
-    # while True:
-    #     main()
-    #     time.sleep(3600)
+    # main()
+    while True:
+        main()
+        time.sleep(300)
         # num = num + 1
 
