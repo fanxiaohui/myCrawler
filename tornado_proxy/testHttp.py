@@ -1,8 +1,8 @@
 
 #-*- coding:UTF-8 -*-
 import sys
-# reload(sys)
-# sys.setdefaultencoding('utf8')
+reload(sys)
+sys.setdefaultencoding('utf8')
 import BeautifulSoup
 import urllib, urllib2
 import zipfile,gzip,io,StringIO,zlib
@@ -17,6 +17,8 @@ import tornado.httpclient
 import requests
 import pymongo
 import hashlib
+import mail
+import re
 
 
 reload(sys)
@@ -56,7 +58,8 @@ def requestClient(url, monconn):
     print 'start request---'
     proxies = {"http": "http://127.0.0.1:8888"}
     # requests.get("http://example.org", proxies=proxies)
-    r = requests.get(url, headers=headers, proxies=proxies)
+    #r = requests.get(url, headers=headers, proxies=proxies)
+    r = requests.get(url, headers=headers)
     data = r.text
     # oData = r.json
     # print type(data)
@@ -85,6 +88,12 @@ def requestClient(url, monconn):
         "database"   : "wenda"
     }
 '''
+
+
+def checkDest(dstr):
+    myPattern = u".*上海|杭州.*"
+    p = re.compile(myPattern)
+    return p.search(dstr)
 
 class pagedbLogic(object):
 
@@ -133,6 +142,9 @@ class pagedbLogic(object):
         else:
             doc_item['_id'] = _id
             self.collection.insert(doc_item)
+            #"Gender": "女"
+            if doc_item['Gender'] == "女" and checkDest(doc_item['Destination']):
+                mail.sendMail(doc_item)
             return 1
 
     def select(self, doc_id):
@@ -212,6 +224,6 @@ if __name__ == '__main__':
     # main()
     while True:
         main()
-        time.sleep(300)
+        time.sleep(600)
         # num = num + 1
 
