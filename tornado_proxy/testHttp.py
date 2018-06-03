@@ -32,7 +32,6 @@ testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%s'
 end = '&latitude=30.898888&longitude=121.905973&page=%s&token=5e81b50f-ee12-11e6-b983-00163e002e59'
 # testurl = 'http://api.miaotu.net/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898888&longitude=121.905973&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59'
 # testurl = 'http://www.example.com/'
-db = redis.StrictRedis(host='210.22.106.178', port=2003)
 miaotuURl = '/v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898927&longitude=121.905984&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1'
 '''
 GET /v2/yueyou/search?count=20&keywords=%E4%B8%8A%E6%B5%B7&latitude=30.898927&longitude=121.905984&page=1&token=5e81b50f-ee12-11e6-b983-00163e002e59 HTTP/1.1
@@ -52,6 +51,33 @@ headers = {
             'Accept-Encoding': 'gzip, deflate',
             'Connection': 'keep-alive'
            }
+
+'''
+POST http://zaiwai.qunawan.com/feedService/findProvinceOrNationInviteFeedListByTerminiId HTTP/1.1
+Host: zaiwai.qunawan.com
+Content-Type: application/x-www-form-urlencoded
+Connection: keep-alive
+Connection: keep-alive
+Accept: */*
+User-Agent: OutSide_Mobile/3.0.0 (iPhone; iOS 9.3.5; Scale/2.00)
+Accept-Language: zh-Hans-CN;q=1
+Content-Length: 67
+Accept-Encoding: gzip, deflate
+
+isChinese=1&page=1&sToken=382434697213906&terminiId=370987252827808
+'''
+zaiWaiUrl = 'http://zaiwai.qunawan.com/feedService/findProvinceOrNationInviteFeedListByTerminiId'
+zaiWaiHeader = {
+                'Host': 'zaiwai.qunawan.com',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Connection': 'keep-alive',
+                'Accept': '*/*',
+                'User-Agent': 'OutSide_Mobile/3.0.0 (iPhone; iOS 9.3.5; Scale/2.00)',
+                'Accept-Language': 'zh-Hans-CN;q=1',
+                'Accept-Encoding': 'gzip, deflate'
+                }
+terminiIdList = ['370987252827808', '370668282294176']
+
 
 
 def requestClient(url, monconn):
@@ -80,6 +106,39 @@ def requestClient(url, monconn):
     # print jData['Items'][0]['Created']
     # monconn.insert(jData)
 
+
+def zaiwaiRequest(url, monconn, terId):
+    print 'zaiwai start request---'
+    proxies = {"http": "http://127.0.0.1:8888"}
+    # requests.get("http://example.org", proxies=proxies)
+    # r = requests.get(url, headers=headers, proxies=proxies)
+    d = {'isChinese': 1, 'page': 1, 'sToken': '382434697213906', 'terminiId': terId}
+    r = requests.post(url, headers=headers, data=d)
+
+    # r = requests.get(url, )
+    data = r.text
+    # oData = r.json
+    # print type(data)
+    # print type(oData)
+    jData = json.loads(data)
+    # print jData
+    listData = jData['customerFeedList']
+    for item in listData:
+        ret = monconn.zaiwaiInsert(item)
+    # num = 0 zaiwaiInsert
+    # for item in jData['Items']:
+    #     ret = monconn.insert(item)
+    #     num = num + ret
+    # if num == 0:
+    #     return False, 0
+    # if len(listData) < 5:
+    #     return False, 1
+    # else:
+    #     return True, 1
+    # print jData['Items'][0]['Uid']
+    # print jData['Items'][0]['Created']
+    # monconn.insert(jData)
+
 '''
 "mongo_config":
     {
@@ -97,11 +156,12 @@ def checkDest(dstr):
 
 class pagedbLogic(object):
 
-    def __init__(self):
+    def __init__(self, collections):
         self.connection = pymongo.MongoClient('106.14.135.47', 27017)
         self.database = self.connection['wenda']
         # self.collection = None
-        self.collection = self.database["shtest"]
+        self.collection = self.database[collections]
+        # self.collection = self.database["shtest"]
 
     def update(self, doc_item):
         _id = self.get_primary_key(doc_item)
@@ -147,6 +207,30 @@ class pagedbLogic(object):
                 mail.sendMail(doc_item)
             return 1
 
+    def zaiwaiInsert(self, doc_item, upsert = False):
+        # 找出主键
+        # print jData['Items'][0]['Uid']
+        # print jData['Items'][0]['Created']
+        # _id = self.get_primary_key(doc_item)
+        _id = str(doc_item['feed']['userId']) + '_' + doc_item['feed']['addTime']
+        print '_id:%s' %_id
+        # 判断主键是否存在
+        if self.collection.find_one({'_id': _id}):
+            # 存在则更新
+            # if upsert:
+            #     self.collection.update({'_id': _id}, {'$set':doc_item}, upsert=True)
+            #     return True, 'primary_key [' + _id + '] upsert OK.'
+            # else:
+            #     return False, 'primary_key [' + _id + '] already exists.'
+            return 0
+        else:
+            doc_item['_id'] = _id
+            self.collection.insert(doc_item)
+            # if doc_item['author']['sex'] != 1 and checkDest(doc_item['Destination']):
+            if doc_item['author']['sex'] != 1:
+                mail.sendMail(doc_item, True)
+            return 1
+
     def select(self, doc_id):
         return self.collection.find_one({'_id': str(doc_id)})
 
@@ -165,7 +249,7 @@ def main():
     # test_proxy(testurl, ip, port, timeout=5)
     # tornadoReq()
     # html = http_get(testurl)
-    mon = pagedbLogic()
+    mon = pagedbLogic('shtest')
     for cItem in cList:
         cURL = testurl%cItem
         for count in range(1, 2000):
@@ -181,6 +265,33 @@ def main():
                 print "--------end---,pages:%s"%count
                 break
             time.sleep(5)
+
+
+def starZaiwai():
+    ip = '127.0.0.1'
+    port = 8888
+    # test_proxy(testurl, ip, port, timeout=5)
+    # tornadoReq()
+    # html = http_get(testurl)
+    mon = pagedbLogic('zaiwai')
+    for cItem in terminiIdList:
+        cDate = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
+        print "%s, zai----url:%s" % (cDate, zaiWaiUrl)
+        zaiwaiRequest(zaiWaiUrl, mon, cItem)
+        time.sleep(5)
+        # cURL = testurl % cItem
+        # for count in range(1, 2000):
+        #     cDate = time.strftime("%Y/%m/%d %H:%M:%S", time.localtime(time.time()))
+        #     addr = end % count
+        #     url = cURL + addr
+        #     print "%s, url:%s" % (cDate, url)
+        #     ret, check = requestClient(url, mon)
+        #     if check == 0:
+        #         print 'no new msg---------------------'
+        #         # break
+        #     if not ret:
+        #         print "--------end---,pages:%s" % count
+        #         break
 
 
     # requestClient(testurl)
@@ -224,6 +335,7 @@ if __name__ == '__main__':
     # main()
     while True:
         main()
+        starZaiwai()
         time.sleep(600)
         # num = num + 1
 

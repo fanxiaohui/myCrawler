@@ -22,7 +22,7 @@ sender = 'information_use@163.com'
 receiver = ['153952862@qq.com']
 
 
-def sendMail(jObj):
+def sendMail(jObj, zai=False):
 
     # subject = jObj['Destination']
     # 通过Header对象编码的文本，包含utf-8编码信息和Base64编码信息。以下中文名测试ok
@@ -32,7 +32,10 @@ def sendMail(jObj):
     # 构造邮件对象MIMEMultipart对象
     # 下面的主题，发件人，收件人，日期是显示在邮件页面上的。
     msg = MIMEMultipart('mixed')
-    constructContent(msg, jObj)
+    if zai:
+        constructZaiwai(msg, jObj)
+    else:
+        constructContent(msg, jObj)
 
     # 发送邮件
     smtp = smtplib.SMTP()
@@ -42,6 +45,7 @@ def sendMail(jObj):
     smtp.login(username, password)
     smtp.sendmail(sender, receiver, msg.as_string())
     smtp.quit()
+    print 'mail finished------------'
 
 
 def constructContent(msg, jObj):
@@ -72,5 +76,40 @@ def constructContent(msg, jObj):
 
     html1 = template % (jObj['_id'], jObj['Destination'], jObj['StartDate'], jObj['Nickname'],
                         jObj['Age'], jObj['Distance'], jObj['Position'], jObj['Remark'], jObj['HeadUrl'], lineStri)
+    msghtml = MIMEText(html1, 'html', "utf-8")
+    msg.attach(msghtml)
+
+
+def constructZaiwai(msg, jObj):
+    msg['Subject'] = 'zai' + jObj['feed']['exp2']
+    msg['From'] = 'information_use@163.com'
+    # msg['To'] = 'XXX@126.com'
+    # 收件人为多个收件人,通过join将列表转换为以;为间隔的字符串
+    msg['To'] = ";".join(receiver)
+    # msg['Date']='2012-3-16'
+
+    template = "<h4>_id:%s</h4>\
+                Destination：%s<br/>\
+                StartDate：%s<br/>\
+                Nickname：%s<br/>\
+                num：%s<br/>\
+                we：%s<br/>\
+                Position：%s<br/>\
+                Remark：%s<br/>\
+                phone：%s<br/>\
+                <br/><br/>\
+                <table> \
+                       <tr><td>head</td><td><img src=\'%s\'></td></tr>\
+                       %s\
+                </table>"
+    lineStri = ''
+    for item in jObj['pictureList']:
+        url = item['urlHeader'] + item['url']
+        str = "<tr><td><img src=\'%s\'></td></tr>" % url
+        lineStri = lineStri + str
+
+    html1 = template % (jObj['author']['userId'], jObj['feed']['exp2'], jObj['feed']['beginDate'], jObj['author']['name'],
+                        jObj['author']['birthday'], jObj['feed']['wechatContact'], jObj['feed']['location'], jObj['feed']['content'],
+                        jObj['author']['phone'], jObj['author']['picUrl'], lineStri)
     msghtml = MIMEText(html1, 'html', "utf-8")
     msg.attach(msghtml)

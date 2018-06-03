@@ -6,6 +6,7 @@ import mail
 import json
 import re
 import urllib
+import  testHttp
 
 
 def checkDest(dstr):
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     Destination
     StartDate
     Nickname
-    Age
+    Age 
     Distance
     Position
     Remark
@@ -31,13 +32,16 @@ if __name__ == '__main__':
     HeadUrl
     <tr><img src='http://img2.miaotu.net/2018-06-02/920117c54db12901d9653f2267ec6da7.jpg'></tr>
     '''
-    jObj = json.loads(data)
-    # rule = '杭州sskshkj上海'
-    # myPattern = r".*上海|杭州.*"
-    # p = re.compile(myPattern)
-    # print p.search(rule)
-    print urllib.quote('上海')
-
-    if jObj['Gender'] == "女" and checkDest(jObj['Destination']):
-        print jObj['Destination']
+    # jObj = json.loads(data)
+    # # rule = '杭州sskshkj上海'
+    # # myPattern = r".*上海|杭州.*"
+    # # p = re.compile(myPattern)
+    # # print p.search(rule)
+    # print urllib.quote('上海')
+    #
+    # if jObj['Gender'] == "女" and checkDest(jObj['Destination']):
+    #     print jObj['Destination']
     # mail.sendMail(jObj)
+    zaiurl = 'http://zaiwai.qunawan.com/feedService/findProvinceOrNationInviteFeedListByTerminiId'
+    mongo = testHttp.pagedbLogic('zaiwai')
+    testHttp.zaiwaiRequest(zaiurl, mongo, '370668282294176')
