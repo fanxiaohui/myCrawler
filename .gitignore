@@ -7,3 +7,4 @@
 /dist/
 /doc/_build/
 *.pyc
+tornado_proxy/.idea/
