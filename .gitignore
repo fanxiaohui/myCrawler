@@ -1,2 +1,9 @@
 */.idea/
 .idea/
+*.log
+
+/MANIFEST
+/build/
+/dist/
+/doc/_build/
+*.pyc
